@@ -36,5 +36,12 @@ public class ArrowCollision : MonoBehaviour {
             test = true;
 
         }
+        if (collision.gameObject.CompareTag("Shield")) {
+            rb.velocity = Vector2.zero;
+            rb.isKinematic = true;
+            rb.GetComponent<BoxCollider2D>().enabled = false;
+            rb.freezeRotation = true;
+            test = false;
+        }
     }
 }

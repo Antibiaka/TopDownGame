@@ -9,10 +9,9 @@ public class StupidEnemy : MonoBehaviour {
     private Rigidbody2D rb;
     private Transform enemyLocation;
     private float moveSpeed = 2f;
-    private Vector2 movement , movement2test;
-    private float distancex, distancey;
-
-    private Vector3 stopPosition;
+    private Vector2 movement ;
+    private float distancex, distancey, followDist;
+    private Vector3 mainPosition;
     private Vector3 newPosition;
     
 
@@ -20,22 +19,21 @@ public class StupidEnemy : MonoBehaviour {
     void Start() {
         rb = this.GetComponent<Rigidbody2D>();
         enemyLocation = this.rb.GetComponent<Transform>();
-        stopPosition = rb.transform.position;
-        newPosition = stopPosition;
+        mainPosition = rb.transform.position; 
+        newPosition = mainPosition;
         NewMovementPosition();
-
-
-        //save current point
+  
     }
 
     private void Update() {
-
-        Distance();//check distance if< move to plaer  else save point like current point
-
+        
+        
+        
+        
     }
     // Update is called once per frame
     void FixedUpdate() {
-
+        Distance();//check distance if< move to plaer  else save point like current point
         if (isHuntBegan) {
             Vector3 direction = player.position - transform.position;
             direction.Normalize();
@@ -44,30 +42,23 @@ public class StupidEnemy : MonoBehaviour {
         }
         else {
             rb.velocity = Vector2.zero;
-            stopPosition = rb.transform.position;//save current point calculate rnd point and move there
-            LookingAround();  
+            if (transform.position == newPosition) {
+                NewMovementPosition();
+            }
+            else {
+                transform.position = Vector3.MoveTowards(transform.position, newPosition, Time.deltaTime * moveSpeed);
+            }
+            //MoveToNewPosition(newPosition);
         }
 
     }
-    private void LookingAround() {
-        while (!isHuntBegan) {
-            Vector3 direction = newPosition;
-            direction.Normalize();
-            movement2test = direction;
-            MoveToNewPosition(movement2test);// break when got there 
-            //    if (stopPosition == newPosition) {  
-            //        NewMovementPosition();
-            //    }
-            //    else {
-            //        
-            //    }
-        }
-    }
+    
     private void NewMovementPosition() {
         
-        newPosition.x = stopPosition.x + RandArea(5f);
-        newPosition.y = stopPosition.y + RandArea(5f);
-        
+        newPosition.x = mainPosition.x + RandArea(3f);
+        newPosition.y = mainPosition.y + RandArea(3f);
+
+        newPosition = new Vector3(newPosition.x, newPosition.y, 0);
         
     }
 
@@ -77,32 +68,32 @@ public class StupidEnemy : MonoBehaviour {
         return number;
     }
 
-    private void OnTriggerEnter2D(Collider2D collider) {
-        if (collider.gameObject.CompareTag("Player")) {
-            isHuntBegan = true;
-        }
-    }
     private void MoveToPlayer(Vector2 direction) {
         rb.MovePosition((Vector2)transform.position + (direction * moveSpeed * Time.deltaTime)); //move rb of enemy to player
     }
 
-    private void MoveToNewPosition(Vector2 direction) {
-     
-        rb.MovePosition((Vector2)transform.position + (direction * moveSpeed * Time.deltaTime));
-        NewMovementPosition();
-    }
 
     private void Distance() {
         distancex = Mathf.Abs(player.transform.position.x - enemyLocation.transform.position.x); // abs distance
         distancey = Mathf.Abs(player.transform.position.y - enemyLocation.transform.position.y); // abs distance
-        if (distancex >= 5 || distancey >= 5) {
+        float temp = distancex * distancex + distancey * distancey;
+        followDist = Mathf.Sqrt(temp);
+
+        if (followDist >= 5) {
             isHuntBegan = false;
         }
+        else if (isHuntBegan) {
+            mainPosition = rb.transform.position;
+            NewMovementPosition();
+            Debug.Log(mainPosition + " main point");
+        }
+        
     }
 
-    private void OnCollisionEnter2D(Collision2D collision) {
-        if (collision.gameObject.CompareTag("Arrow")) {
-            gameObject.GetComponent<Transform>().SetParent(this.rb.transform);
+    
+    private void OnTriggerEnter2D(Collider2D collider) {
+        if (collider.gameObject.CompareTag("Player")) {
+            isHuntBegan = true;
         }
     }
 }
