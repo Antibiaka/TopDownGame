@@ -15,11 +15,7 @@ public class ArrowCollision : MonoBehaviour {
         sprite = GetComponent<SpriteRenderer>();
     }
 
-    private void FixedUpdate() {
-        if (test) {
-            sprite.sortingOrder = -1;
-        }
-    }
+   
     private void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("Wall")) {
 
@@ -33,7 +29,7 @@ public class ArrowCollision : MonoBehaviour {
             rb.isKinematic = true;
             rb.GetComponent<BoxCollider2D>().enabled = false;
             rb.freezeRotation = true;
-            test = true;
+           
 
         }
         if (collision.gameObject.CompareTag("Shield")) {
@@ -41,7 +37,7 @@ public class ArrowCollision : MonoBehaviour {
             rb.isKinematic = true;
             rb.GetComponent<BoxCollider2D>().enabled = false;
             rb.freezeRotation = true;
-            test = false;
+
         }
        
     }
